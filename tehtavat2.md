@@ -5,8 +5,6 @@ inheader: no
 permalink: /tehtavat2/
 ---
 
-{% include miniproj_ilmo.md %}
-
 {% include laskari_info.md part=2 %}
 
 Viikon ensimmäisessä ja toisessa tehtävässä tutustutaan koodin _staattiseen analyysin_ pylint-työkalun avulla. Gitiin tutustuminen jatkuu tehtävissä 3-7. Laskarien lopuksi jatketaan _riippuvuuksien injektoinnin_ parissa.
@@ -123,7 +121,7 @@ Helpoin tapa löytää sääntöjä on hakemalla sopivalla hakusanalla niitä do
   - Rivin pituus on maksimissaan 80 merkkiä
     - Vinkki: sääntö löytyy [Format checker](http://pylint.pycqa.org/en/2.6/technical_reference/features.html#format-checker) -osiosta ja tulee määrittää `[FORMAT]`-osion alle
   - Ei yli kahta sisäkkäistä lohkoa (esimerkiksi if- tai for-lohkoa) funktion tai metodin sisällä
-    - Vinkki: sääntö löytyy [Refactoring checker](http://pylint.pycqa.org/en/2.6/technical_reference/features.html#refactoring-checker) ja tulee määrittää `[REFACTORING]`-osion alle)
+    - Vinkki: sääntö löytyy [Refactoring checker](http://pylint.pycqa.org/en/2.6/technical_reference/features.html#refactoring-checker) -osiosta ja tulee määrittää `[REFACTORING]`-osion alle)
   - Funktiossa tai metodissa on enintään 15 lausetta (statements), etsi sääntö dokumentaatiosta
   - [Syklomaattinen koodikompleksisuus](https://en.wikipedia.org/wiki/Cyclomatic_complexity) korkeintaan 3
     - Selvitä mitä syklomaattisella kompleksisuudella tarkoitetaan
@@ -316,7 +314,7 @@ nothing to commit, working tree clean
 - Siirry jälleen branchiin **laskut** ja huomaat, että _LICENSE_ ei ole olemassa
 - Mergeä **master** branchiin **laskut**
 - Siirry nyt masteriin ja tuhoa branchi **laskut**
-  - Tuohoaminen ei onnistu suoraan jos branchin sisältö ei ole kokonaisuudessan mergetty masteriin. Jos näin on, tee ensin merge
+  - Tuhoaminen ei onnistu suoraan komennon `git branch` branchin poistavalla flagilla `-d`, jos branchin sisältö ei ole kokonaisuudessan mergetty masteriin. Jos näin on, tee ensin merge masteriin, tai jos tarkoituksena on poistaa branch silti vaikka siinä on vielä eriäviä muutoksia, käytä `git branch -D` poistaaksesi branch eriävine muutoksineen
 - Tämän tehtävän ideana oli siis havainnollistaa, että working tree (muutokset joista git ei ole tietoinen) ja staging (gitiin lisättyihin tiedostoihin tehdyt committoimattomat muutokset)
   **eivät liity** mihinkään branchiin, muutokset siirtyvät staging-alueelta branchiin ainoastaan komennon `git commit` suorituksen seurauksena
 
@@ -345,7 +343,7 @@ print(f"{erotus(x, y)}")
 logger("lopetetaan")
 ```
 
-- alkuun in siis lisätty kommentti ja tyhjä rivi
+- alkuun on siis lisätty kommentti ja tyhjä rivi
 - committaa muutos
 
 - Tee uusi branchi **bugikorjaus**, mene branchiin ja editoi tiedoston **index.py** loppua (esim. seuraavasti ) ja committaa
@@ -483,7 +481,7 @@ Mene GitHub-repon alkuperäiseen paikalliseen kopioon:
 
 - Mene branchiin **haara1** ja pullaa muutokset GitHubiin vastaavasta branchista
   - huom: koska kyseessä ei ole "träkkäävä" branchi, joudut pullaamaan komennolla `git pull origin haara1`
-- Mene branchiin **haara2**, lisää sitten tiedosto, committaa ja pushaa branchi GitHubiin
+- Mene branchiin **haara2**, lisää sinnekin jokin tiedosto, committaa ja pushaa branchi GitHubiin
   - Koska kyseessä ei ole "träkkäävä" branchi, ei komento `git push` riitä vaan joudut määrittelemään branchin jonne push kohdistuu eli antamaan komennon `git push origin haara2`
 - Komennon `git push` tuloste antaa ohjeen, miten saat komennon toimimaan haaran sisältä ilman lisäparametreja:
 
@@ -518,9 +516,9 @@ Mene jälleen toiseen kopioon:
 ```
 
 - Komennon tulosteesta selviää, että main ja haara1 ovat konfiguroitu toimimaan suoraan `git pull` ja `git push` -komennoilla
-- Tee lokaaliin kopioon GitHubissa olevan projektisi branchia **haara2** träkkäävä branch
+- Tee toiseen lokaaliin kopioon GitHubissa olevan projektisi branchia **haara2** träkkäävä branch
 - Suorita jälleen `git remote show origin`, mitä muutoksia huomaat?
-- Tee branchiin muutoksia ja pushaa ne githubiin
+- Tee branchiin **haara2** muutoksia ja pushaa ne githubiin
   - Huom: koska kyseessä on träkkäävä branch, riittää git push
 - tarkastele GitHub-repositoriota selaimella, varmista että branchi päivittyy
 
@@ -678,10 +676,19 @@ class Viitegeneraattori:
         return self._seuraava
 
 
-the_viitegeneraattori_olio = Viitegeneraattori()
+viitegeneraattori = Viitegeneraattori()
 ```
 
-Nyt muut moduulit voivat käyttää `the_viitegeneraattori_olio`-muuttujaan tallennettua oliota.
+Nyt muut moduulit voivat käyttää `viitegeneraattori`-muuttujaan tallennettua oliota. Tässä tilanteessa luokan tarpeen voisi ylipäätään kyseenalaistaa, koska yksinkertainen funktio ajaisi saman asian:
+
+```python
+seuraava = 1
+
+def generoi_viite():
+    seuraava = seuraava + 1
+
+    return seuraava
+```
 
 ### 12. Riippuvuuksien injektointi osa 5: Verkkokauppa siistiksi
 
@@ -699,23 +706,23 @@ Korjataan tilanne antamalla riippuvuuksille oletusarvot.
 
 **Tee seuraavat toimenpiteet:**
 
-- Tallenna _viitegeneraattori.py_-tiedostossa muuttujaan `the_viitegeneraattori_olio` luokan `Viitegeneraattori` olio edellisen esimerkin tavoin
-- Tallenna _kirjanpito.py_-tiedostossa muuttujaan `the_kirjanpito_olio` luokan `Kirjanpito` olio
-- Muokkaa `Varasto`-luokkaa siten, että sen konstruktorin `kirjanpito`-parametrin arvo on oletusarvoisesti _kirjanpito.py_-tiedostossa määritelty `the_kirjanpito_olio`-muuttujan arvo. Parametrien oletuarvojen antaminen onnistuu seuraavasti:
+- Tallenna _viitegeneraattori.py_-tiedostossa muuttujaan `viitegeneraattori` luokan `Viitegeneraattori` olio edellisen esimerkin tavoin
+- Tallenna _kirjanpito.py_-tiedostossa muuttujaan `kirjanpito` luokan `Kirjanpito` olio
+- Muokkaa `Varasto`-luokkaa siten, että sen konstruktorin `kirjanpito`-parametrin arvo on oletusarvoisesti _kirjanpito.py_-tiedostossa määritelty `kirjanpito`-muuttujan arvo. Parametrien oletuarvojen antaminen onnistuu seuraavasti:
 
 ```python
-from kirjanpito import the_kirjanpito_olio
+from kirjanpito import kirjanpito as default_kirjanpito
 
 class Varasto:
-    def __init__(self, kirjanpito=the_kirjanpito_olio):
+    def __init__(self, kirjanpito=default_kirjanpito):
             self._kirjanpito = kirjanpito
             # ...
 
     # ...
 ```
 
-- Tallenna _varasto.py_-tiedostossa muuttujaan `the_varasto_olio` luokan `Varasto` olio. Huomaa, että olion voi alustaa ilman argumentteja (muodossa `Varasto()`), koska `kirjanpito`-parametrille on annettu oletusarvo.
-- Tee sama `Pankki`-luokan konstruktorille ja tallenna `Pankki`-luokan olio muuttujaan `the_pankki_olio`
+- Tallenna _varasto.py_-tiedostossa muuttujaan `varasto` luokan `Varasto` olio. Huomaa, että olion voi alustaa ilman argumentteja (muodossa `Varasto()`), koska `kirjanpito`-parametrille on annettu oletusarvo.
+- Tee sama `Pankki`-luokan konstruktorille ja tallenna `Pankki`-luokan olio muuttujaan `pankki`
 - Käytä `Kauppa`-luokan konstruktorissa `varasto`-, `pankki`- ja `viitegeneraattori`-parametrien oletusarvoina edellisissä askelissa määrittelemiäsi muuttujia
 - **Muokkaa _index.py_-tiedoston `main`-funktiota** siten, että `Kauppa`-olion alustaminen ei käytä argumentteja:
 
